@@ -34,8 +34,10 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
 					String[] marketCap = doc.select(".coin-summary-item-detail.details-text-medium>span").text().split(" ");
-					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2] + " " + marketCap[3] + "\n" + "Volume (24h): " + "\n" + marketCap[4]
-							+ " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7] + "\n\n" + "information by coinmarketcap.com");
+					String[] priceChange = doc.select(".text-large2").text().split(" ");
+					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Price change: " + priceChange[1] + "\n" + "—————————————" + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2]
+							+ " " + marketCap[3] + "\n" + "—————————————" + "\n" + "Volume (24h): " + "\n" + marketCap[4] + " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7] + "\n\n" + "information by coinmarketcap.com");
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
