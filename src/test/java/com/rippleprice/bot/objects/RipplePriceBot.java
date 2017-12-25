@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -29,16 +31,40 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		Message msg = arg0.getMessage();
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
-				sendMsg(msg, "/price - current price of a Ripple");
+				sendMsg(msg, "/price - current price of a Ripple\n/history - Weekly history");
 			if (msg.getText().equals("/price")) {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
 					String[] marketCap = doc.select(".coin-summary-item-detail.details-text-medium>span").text().split(" ");
 					String[] priceChange = doc.select(".text-large2").text().split(" ");
-					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Price change: " + priceChange[1] + "\n" + "—————————————" + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2]
-							+ " " + marketCap[3] + "\n" + "—————————————" + "\n" + "Volume (24h): " + "\n" + marketCap[4] + " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7] + "\n\n" + "information by coinmarketcap.com");
+					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Price change: " + priceChange[1] + "\n" + "———————————" + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2]
+							+ " " + marketCap[3] + "\n" + "———————————" + "\n" + "Volume (24h): " + "\n" + marketCap[4] + " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7] + "\n\n" + "information by coinmarketcap.com");
 
 				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (msg.getText().equals("/history")) {
+				try {
+					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/historical-data/").get();
+					Element table = doc.select("table").get(0); // select the first table.
+					Elements rows = table.select("tr");
+					StringBuilder result = new StringBuilder();
+
+					for (int i = 1; i < 8; i++) {
+						Element row = rows.get(i);
+						Elements cols = row.select("td");
+						String[] data = cols.text().split(" ");
+						result.append(data[0] + " " + data[1] + " " + data[2] + "\n" + "High:\n" + data[4] + " USD" + "\nLow:\n" + data[5] + " USD" + "\nMarket Cap:\n" + data[8] + " USD");
+						if (i < 7)
+							result.append("\n———————————\n");
+
+					}
+					result.append("\n\ninformation by coinmarketcap.com");
+					sendMsg(msg, result.toString());
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
