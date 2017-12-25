@@ -33,7 +33,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
 				sendMsg(msg, "/price - current price of a Ripple\n/history - Weekly history\\n/markets - Markets price");
-			if (msg.getText().equals("/price")) {
+			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
 					String[] marketCap = doc.select(".coin-summary-item-detail.details-text-medium>span").text().split(" ");
@@ -45,7 +45,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					e.printStackTrace();
 				}
 			}
-			if (msg.getText().equals("/history")) {
+			if (msg.getText().equals("/history") || msg.getText().equals("/history@RipplePrice_bot")) {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/historical-data/").get();
 					Element table = doc.select("table").get(0); // select the first table.
@@ -69,7 +69,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					e.printStackTrace();
 				}
 			}
-			if (msg.getText().equals("/markets")) {
+			if (msg.getText().equals("/markets") || msg.getText().equals("/markets@RipplePrice_bot")) {
 				Document doc;
 				try {
 					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/#markets").get();
