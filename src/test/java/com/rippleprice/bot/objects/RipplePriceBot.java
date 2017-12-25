@@ -1,6 +1,7 @@
 package com.rippleprice.bot.objects;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,7 +32,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		Message msg = arg0.getMessage();
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
-				sendMsg(msg, "/price - current price of a Ripple\n/history - Weekly history");
+				sendMsg(msg, "/price - current price of a Ripple\n/history - Weekly history\\n/markets - Markets price");
 			if (msg.getText().equals("/price")) {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
@@ -65,6 +66,35 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (msg.getText().equals("/markets")) {
+				Document doc;
+				try {
+					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/#markets").get();
+					Element table = doc.select("table").get(0); // select the first table.
+					Elements rows = table.select("tr");
+					StringBuilder result = new StringBuilder();
+
+					for (int i = 1; i < 31; i++) {
+						Element row = rows.get(i);
+						Elements cols = row.select("td");
+						String[] data = cols.text().split(" ");
+						data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
+						result.append(data[data.length - 3].replace(',', '.') + "  -  ");
+						result.append(data[1]);
+						int k = 1;
+
+						while (!data[++k].startsWith("XRP")) {
+							result.append(" " + data[k]);
+						}
+						result.append("\n");
+					}
+
+					result.append("\ninformation by coinmarketcap.com");
+					sendMsg(msg, result.toString());
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
