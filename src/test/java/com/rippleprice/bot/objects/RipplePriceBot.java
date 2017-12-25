@@ -65,7 +65,6 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					sendMsg(msg, result.toString());
 
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -81,7 +80,13 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						Element row = rows.get(i);
 						Elements cols = row.select("td");
 						String[] data = cols.text().split(" ");
-						data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
+
+						try {
+							data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
 						result.append(data[data.length - 3].replace(',', '.') + "  -  ");
 						result.append(data[1]);
 						int k = 1;
@@ -89,6 +94,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						while (!data[++k].startsWith("XRP")) {
 							result.append(" " + data[k]);
 						}
+						result.append("  (" + data[data.length - 5] + ")");
 						result.append("\n");
 					}
 
