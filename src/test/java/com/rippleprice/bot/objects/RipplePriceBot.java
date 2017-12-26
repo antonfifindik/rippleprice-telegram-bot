@@ -32,7 +32,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		Message msg = arg0.getMessage();
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
-				sendMsg(msg, "/price - current price of a Ripple\n/history - Weekly history\\n/markets - Markets price");
+				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
 			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
 				try {
 					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
@@ -100,6 +100,39 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 					result.append("\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (msg.getText().equals("/top10") || msg.getText().equals("/top10@RipplePrice_bot")) {
+				Document doc;
+				try {
+					doc = Jsoup.connect("https://coinmarketcap.com/").get();
+					Element table = doc.select("table").get(0); // select the first table.
+					Elements rows = table.select("tr");
+					StringBuilder result = new StringBuilder();
+
+					for (int i = 1; i < 11; i++) {
+						Element row = rows.get(i);
+						Elements cols = row.select("td");
+						String[] data = cols.text().split(" ");
+						int k = 2;
+						result.append(data[0] + ". " + data[2]);
+
+						while (!data[++k].startsWith("$"))
+							result.append(" " + data[k]);
+
+						result.append(" (" + data[1] + ")\n");
+						result.append("Price:\n" + data[k + 1]);
+						result.append("\nMarket Cap:\n" + data[k]);
+						result.append("\nChange (24h):\n" + data[data.length - 1]);
+						if (i < 10)
+							result.append("\n———————————\n");
+					}
+
+					result.append("\n\ninformation by coinmarketcap.com");
+					sendMsg(msg, result.toString());
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
