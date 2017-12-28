@@ -2,6 +2,7 @@ package com.rippleprice.bot.objects;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,12 +31,14 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 	public void onUpdateReceived(Update arg0) {
 
 		Message msg = arg0.getMessage();
+		Document doc;
+
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
-				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
+				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
 			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
 				try {
-					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
+					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
 					String[] marketCap = doc.select(".coin-summary-item-detail.details-text-medium>span").text().split(" ");
 					String[] priceChange = doc.select(".text-large2").text().split(" ");
 					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Price change: " + priceChange[1] + "\n" + "———————————" + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2]
@@ -47,8 +50,8 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 			}
 			if (msg.getText().equals("/history") || msg.getText().equals("/history@RipplePrice_bot")) {
 				try {
-					Document doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/historical-data/").get();
-					Element table = doc.select("table").get(0); // select the first table.
+					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/historical-data/").get();
+					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
 					StringBuilder result = new StringBuilder();
 
@@ -69,10 +72,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 				}
 			}
 			if (msg.getText().equals("/markets") || msg.getText().equals("/markets@RipplePrice_bot")) {
-				Document doc;
 				try {
 					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/#markets").get();
-					Element table = doc.select("table").get(0); // select the first table.
+					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
 					StringBuilder result = new StringBuilder();
 
@@ -105,10 +107,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 				}
 			}
 			if (msg.getText().equals("/top10") || msg.getText().equals("/top10@RipplePrice_bot")) {
-				Document doc;
 				try {
 					doc = Jsoup.connect("https://coinmarketcap.com/").get();
-					Element table = doc.select("table").get(0); // select the first table.
+					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
 					StringBuilder result = new StringBuilder();
 
@@ -137,11 +138,40 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					e.printStackTrace();
 				}
 			}
+			if (msg.getText().equals("/exmo") || msg.getText().equals("/exmo@RipplePrice_bot")) {
+				try {
+					doc = Jsoup.connect("https://coinmarketcap.com/exchanges/exmo/").get();
+					Element table = doc.select("table").get(0);
+					Elements rows = table.select("tr");
+					StringBuilder result = new StringBuilder();
+					ArrayList<String[]> pairs = new ArrayList<>();
+
+					for (int i = 1; i < rows.size(); i++) {
+						Element row = rows.get(i);
+						Elements cols = row.select("td");
+						String[] data = cols.text().split(" ");
+						if (data[1].equals("Ripple") && (data[2].equals("XRP/USD") || data[2].equals("XRP/BTC"))) {
+							int resultLength = result.length();
+
+							result.append("Pair: " + data[2] + "\nPrice: " + data[4] + "\nVolume(24h):\n" + data[3] + "\nVolume(%):\n" + data[5]);
+							if (resultLength == 0)
+								result.append("\n———————————\n");
+							else
+								result.append("\n\ninformation by coinmarketcap.com");
+						}
+					}
+
+					sendMsg(msg, result.toString());
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	public String getBotUsername() {
-		return "RipplePrice_bot";
+		return BotConfig.BOT_USERNAME;
 	}
 
 	@Override
