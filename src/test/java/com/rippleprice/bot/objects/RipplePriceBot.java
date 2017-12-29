@@ -41,8 +41,10 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/").get();
 					String[] marketCap = doc.select(".coin-summary-item-detail.details-text-medium>span").text().split(" ");
 					String[] priceChange = doc.select(".text-large2").text().split(" ");
-					sendMsg(msg, "Current price: " + doc.select("span#quote_price").text() + "\n" + "Price change: " + priceChange[1] + "\n" + "———————————" + "\n" + "Market Cap: " + "\n" + marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2]
-							+ " " + marketCap[3] + "\n" + "———————————" + "\n" + "Volume (24h): " + "\n" + marketCap[4] + " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7] + "\n\n" + "information by coinmarketcap.com");
+					sendMsg(msg,
+							"Current price: *$" + doc.select("span#quote_price").text().replace(" USD", "") + "*\n" + "Price change: " + priceChange[1].replace("(", "").replace(")", "") + "\n" + "———————————" + "\n" + "Market Cap: " + "\n"
+									+ marketCap[0] + " " + marketCap[1] + "\n" + marketCap[2] + " " + marketCap[3] + "\n" + "———————————" + "\n" + "Volume (24h): " + "\n" + marketCap[4] + " " + marketCap[5] + "\n" + marketCap[6] + " " + marketCap[7]
+									+ "\n\n" + "information by coinmarketcap.com");
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -59,7 +61,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						Element row = rows.get(i);
 						Elements cols = row.select("td");
 						String[] data = cols.text().split(" ");
-						result.append(data[0] + " " + data[1] + " " + data[2] + "\n" + "High:\n" + data[4] + " USD" + "\nLow:\n" + data[5] + " USD" + "\nMarket Cap:\n" + data[8] + " USD");
+						result.append(data[0] + " " + data[1] + " " + data[2] + "\n" + "High:\n*$" + data[4] + "*" + "\nLow:\n*$" + data[5] + "*" + "\nMarket Cap:\n" + data[8] + " USD");
 						if (i < 7)
 							result.append("\n———————————\n");
 
@@ -89,7 +91,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 							e.printStackTrace();
 						}
 
-						result.append(data[data.length - 3].replace(',', '.') + "  -  ");
+						result.append("*" + data[data.length - 3].replace(',', '.') + "*" + "  -  ");
 						result.append(data[1]);
 						int k = 1;
 
@@ -124,7 +126,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 							result.append(" " + data[k]);
 
 						result.append(" (" + data[1] + ")\n");
-						result.append("Price:\n" + data[k + 1]);
+						result.append("Price:\n*" + data[k + 1] + "*");
 						result.append("\nMarket Cap:\n" + data[k]);
 						result.append("\nChange (24h):\n" + data[data.length - 1]);
 						if (i < 10)
@@ -153,7 +155,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						if (data[1].equals("Ripple") && (data[2].equals("XRP/USD") || data[2].equals("XRP/BTC"))) {
 							int resultLength = result.length();
 
-							result.append("Pair: " + data[2] + "\nPrice: " + data[4] + "\nVolume(24h):\n" + data[3] + "\nVolume(%):\n" + data[5]);
+							result.append("Pair: " + data[2] + "\nPrice: *" + data[4] + "*\nVolume(24h):\n" + data[3] + "\nVolume(%):\n" + data[5]);
 							if (resultLength == 0)
 								result.append("\n———————————\n");
 							else
