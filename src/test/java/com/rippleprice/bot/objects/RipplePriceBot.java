@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +16,8 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+
+import com.rippleprice.bot.json.JsonReader;
 
 public class RipplePriceBot extends TelegramLongPollingBot {
 
@@ -31,7 +34,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 	public void onUpdateReceived(Update arg0) {
 
 		Message msg = arg0.getMessage();
+		StringBuilder result = new StringBuilder();
 		Document doc;
+		JSONArray jsonArray;
 
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
@@ -55,7 +60,6 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/historical-data/").get();
 					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
-					StringBuilder result = new StringBuilder();
 
 					for (int i = 1; i < 8; i++) {
 						Element row = rows.get(i);
@@ -78,7 +82,6 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					doc = Jsoup.connect("https://coinmarketcap.com/currencies/ripple/#markets").get();
 					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
-					StringBuilder result = new StringBuilder();
 
 					for (int i = 1; i < 31; i++) {
 						Element row = rows.get(i);
@@ -110,32 +113,18 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 			}
 			if (msg.getText().equals("/top10") || msg.getText().equals("/top10@RipplePrice_bot")) {
 				try {
-					doc = Jsoup.connect("https://coinmarketcap.com/").get();
-					Element table = doc.select("table").get(0);
-					Elements rows = table.select("tr");
-					StringBuilder result = new StringBuilder();
+					jsonArray = JsonReader.readJsonFromUrl("https://api.coinmarketcap.com/v1/ticker/?limit=10");
+					for (int i = 0; i < jsonArray.length(); i++) {
 
-					for (int i = 1; i < 11; i++) {
-						Element row = rows.get(i);
-						Elements cols = row.select("td");
-						String[] data = cols.text().split(" ");
-						int k = 2;
-						result.append(data[0] + ". " + data[2]);
-
-						while (!data[++k].startsWith("$"))
-							result.append(" " + data[k]);
-
-						result.append(" (" + data[1] + ")\n");
-						result.append("Price:\n*" + data[k + 1] + "*");
-						result.append("\nMarket Cap:\n" + data[k]);
-						result.append("\nChange (24h):\n" + data[data.length - 1]);
-						if (i < 10)
+						result.append(String.format("%s. *%s* (%s)\nPrice: *$%s*\nMarket Cap:\n$%s\nChange (24h):\n%s%%", jsonArray.getJSONObject(i).get("rank"), jsonArray.getJSONObject(i).get("name"), jsonArray.getJSONObject(i).get("symbol"),
+								new DecimalFormat("#0.00").format(new Double(jsonArray.getJSONObject(i).get("price_usd").toString())).replace(',', '.'),
+								new DecimalFormat("###,###.###").format(new Double(jsonArray.getJSONObject(i).get("market_cap_usd").toString())), jsonArray.getJSONObject(i).get("percent_change_24h")));
+						if (i < jsonArray.length() - 1)
 							result.append("\n———————————\n");
 					}
 
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
-
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -145,7 +134,6 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					doc = Jsoup.connect("https://coinmarketcap.com/exchanges/exmo/").get();
 					Element table = doc.select("table").get(0);
 					Elements rows = table.select("tr");
-					StringBuilder result = new StringBuilder();
 					ArrayList<String[]> pairs = new ArrayList<>();
 
 					for (int i = 1; i < rows.size(); i++) {
