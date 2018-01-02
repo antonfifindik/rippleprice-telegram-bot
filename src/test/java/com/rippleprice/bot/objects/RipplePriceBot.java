@@ -40,13 +40,13 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		StringBuilder result = new StringBuilder();
 		Document doc;
 		JSONArray jsonArray;
-
-		if (!msg.getFrom().getId().equals(117079036))
-			sendMeMsg(String.format("The bot was used: %s %s (%s) - \"%s\"", msg.getFrom().getFirstName(), msg.getFrom().getLastName(), msg.getFrom().getUserName(), msg.getText()));
+		String command = new String();
 
 		if (msg != null && msg.hasText()) {
-			if (msg.getText().equals("/help"))
+			if (msg.getText().equals("/help")) {
 				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
+				command = "/help";
+			}
 			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
 				try {
 					jsonArray = JsonReader.readJsonFromUrl("https://api.coinmarketcap.com/v1/ticker/ripple/");
@@ -58,6 +58,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
+					command = "/price";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -79,7 +80,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					}
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
-
+					command = "/history";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -114,6 +115,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 					result.append("\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
+					command = "/markets";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -132,6 +134,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
+					command = "/top10";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -159,12 +162,15 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					}
 
 					sendMsg(msg, result.toString());
-
+					command = "/exmo";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+
+		if (!msg.getFrom().getId().equals(117079036) && !msg.getChatId().equals((long) -234054834) && !msg.getChatId().equals((long) -37893961))
+			sendMeMsg(String.format("The bot was used: *%s %s* (*%s*) - \"%s\"", msg.getFrom().getFirstName(), msg.getFrom().getLastName(), msg.getFrom().getUserName(), command));
 	}
 
 	public String getBotUsername() {
