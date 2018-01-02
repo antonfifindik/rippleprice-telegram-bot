@@ -41,6 +41,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		Document doc;
 		JSONArray jsonArray;
 
+		if (!msg.getFrom().getId().equals(117079036))
+			sendMeMsg(String.format("The bot was used: %s %s (%s) - \"%s\"", msg.getFrom().getFirstName(), msg.getFrom().getLastName(), msg.getFrom().getUserName(), msg.getText()));
+
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/help"))
 				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
@@ -69,7 +72,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						Element row = rows.get(i);
 						Elements cols = row.select("td");
 						String[] data = cols.text().split(" ");
-						result.append(data[0] + " " + data[1] + " " + data[2] + "\n" + "High:\n*$" + data[4] + "*" + "\nLow:\n*$" + data[5] + "*" + "\nMarket Cap:\n" + data[8] + " USD");
+						result.append(data[0] + " " + data[1] + " " + data[2] + "\n" + "High:\n*$" + data[4] + "*" + "\nLow:\n*$" + data[5] + "*" + "\nMarket cap:\n$" + data[8]);
 						if (i < 7)
 							result.append("\n———————————\n");
 
@@ -177,7 +180,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.enableMarkdown(true);
 		sendMessage.setChatId(msg.getChatId().toString());
-		sendMessage.setReplyToMessageId(msg.getMessageId());
+		// sendMessage.setReplyToMessageId(msg.getMessageId());
 		sendMessage.setText(text);
 		try {
 			sendMessage(sendMessage);
@@ -186,4 +189,15 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		}
 	}
 
+	private void sendMeMsg(String text) {
+		SendMessage sendMessage = new SendMessage();
+		sendMessage.enableMarkdown(true);
+		sendMessage.setChatId("117079036");
+		sendMessage.setText(text);
+		try {
+			sendMessage(sendMessage);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
 }
