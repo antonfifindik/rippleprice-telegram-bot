@@ -43,8 +43,14 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		String command = new String();
 
 		if (msg != null && msg.hasText()) {
+			if (msg.getText().equals("/start")) {
+				sendMsg(msg, String.format(
+						"Hello, *%s*!\n*Available commands:*\n/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands",
+						msg.getFrom().getFirstName()));
+				command = "/start";
+			}
 			if (msg.getText().equals("/help")) {
-				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations");
+				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands");
 				command = "/help";
 			}
 			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
@@ -186,7 +192,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.enableMarkdown(true);
 		sendMessage.setChatId(msg.getChatId().toString());
-		// sendMessage.setReplyToMessageId(msg.getMessageId());
+		sendMessage.setReplyToMessageId(msg.getMessageId());
 		sendMessage.setText(text);
 		try {
 			sendMessage(sendMessage);
