@@ -11,8 +11,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
@@ -22,16 +20,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import com.rippleprice.bot.json.JsonReader;
 
 public class RipplePriceBot extends TelegramLongPollingBot {
-
-	public static void main(String[] args) {
-		ApiContextInitializer.init();
-		TelegramBotsApi botapi = new TelegramBotsApi();
-		try {
-			botapi.registerBot(new RipplePriceBot());
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public void onUpdateReceived(Update arg0) {
 
@@ -59,8 +47,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					JSONObject jsonObject = jsonArray.getJSONObject(0);
 
 					result.append(String.format("Current price: *%s*\nChange(24h): %s%%\n———————————\nMarket cap: \n%s\nRank: %s\n———————————\nVolume(24h):\n%s\nСhange(7d): %s%%", new DecimalFormat("$#0.00").format(jsonObject.getDouble("price_usd")),
-							jsonObject.getString("percent_change_24h"), new DecimalFormat("$###,###.###").format(jsonObject.getDouble("market_cap_usd")), jsonObject.getString("rank"),
-							new DecimalFormat("$###,###.###").format(jsonObject.getDouble("24h_volume_usd")), jsonObject.getString("percent_change_7d")));
+							jsonObject.getString("percent_change_24h").startsWith("-") ? jsonObject.getString("percent_change_24h") : ("+" + jsonObject.getString("percent_change_24h")),
+							new DecimalFormat("$###,###.###").format(jsonObject.getDouble("market_cap_usd")), jsonObject.getString("rank"), new DecimalFormat("$###,###.###").format(jsonObject.getDouble("24h_volume_usd")),
+							jsonObject.getString("percent_change_7d").startsWith("-") ? jsonObject.getString("percent_change_7d") : ("+" + jsonObject.getString("percent_change_7d"))));
 
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
@@ -133,7 +122,7 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 						result.append(String.format("%s. *%s* (%s)\nPrice: *$%s*\nMarket Cap:\n%s\nChange(24h):\n%s%%", jsonArray.getJSONObject(i).get("rank"), jsonArray.getJSONObject(i).get("name"), jsonArray.getJSONObject(i).get("symbol"),
 								new DecimalFormat("#0.00").format(jsonArray.getJSONObject(i).getDouble("price_usd")).replace(',', '.'), new DecimalFormat("$###,###.###").format(jsonArray.getJSONObject(i).getDouble("market_cap_usd")),
-								jsonArray.getJSONObject(i).get("percent_change_24h")));
+								jsonArray.getJSONObject(i).get("percent_change_24h").toString().startsWith("-") ? jsonArray.getJSONObject(i).get("percent_change_24h") : ("+" + jsonArray.getJSONObject(i).get("percent_change_24h"))));
 						if (i < jsonArray.length() - 1)
 							result.append("\n———————————\n");
 					}
