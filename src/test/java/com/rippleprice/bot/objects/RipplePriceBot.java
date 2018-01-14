@@ -55,7 +55,8 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					sendMsg(msg, result.toString());
 					command = "/price";
 				} catch (IOException e) {
-					e.printStackTrace();
+					e.getStackTrace().toString();
+					sendMeMsg(String.format("*The exception was intercepted:* %s"));
 				}
 			}
 			if (msg.getText().equals("/history") || msg.getText().equals("/history@RipplePrice_bot")) {
@@ -91,21 +92,27 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 						Elements cols = row.select("td");
 						String[] data = cols.text().split(" ");
 
-						try {
-							data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						if (data[data.length - 1].equals("Recently")) {
+							try {
+								data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 
-						result.append("*" + data[data.length - 3].replace(',', '.') + "*" + "  -  ");
-						result.append(data[1]);
-						int k = 1;
+							result.append("*" + data[data.length - 3].replace(',', '.') + "*" + "  -  ");
+							result.append(data[1]);
+							int k = 1;
 
-						while (!data[++k].startsWith("XRP")) {
-							result.append(" " + data[k]);
+							while (!data[++k].startsWith("XRP")) {
+								result.append(" " + data[k]);
+							}
+
+							if (data[data.length - 5].startsWith("XRP"))
+								result.append("  (" + data[data.length - 5] + ")");
+							else
+								result.append("  (" + data[data.length - 6] + ")");
+							result.append("\n");
 						}
-						result.append("  (" + data[data.length - 5] + ")");
-						result.append("\n");
 					}
 
 					result.append("\ninformation by coinmarketcap.com");
