@@ -108,9 +108,9 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 							}
 
 							if (data[data.length - 5].startsWith("XRP"))
-								result.append("  (" + data[data.length - 5] + ")");
-							else
 								result.append("  (" + data[data.length - 6] + ")");
+							else
+								result.append("  (" + data[data.length - 7] + ")");
 							result.append("\n");
 						}
 					}
