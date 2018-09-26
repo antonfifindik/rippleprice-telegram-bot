@@ -94,12 +94,12 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 
 						if (data[data.length - 1].equals("Recently")) {
 							try {
-								data[data.length - 3] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 3].substring(1))) / 100.0);
+								data[data.length - 5] = "$" + new DecimalFormat("#0.00").format(Math.rint(100.0 * new Double(data[data.length - 5].substring(1))) / 100.0);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 
-							result.append("*" + data[data.length - 3].replace(',', '.') + "*" + "  -  ");
+							result.append("*" + data[data.length - 5].replace(',', '.') + "*" + "  -  ");
 							result.append(data[1]);
 							int k = 1;
 

@@ -1,2 +1,20 @@
 BotConfig.java
 Test.java
+
+.idea/
+lib/
+out/
+target/
+src/test/
+*.iml
+
+# eclipse project file
+.settings/
+.classpath
+.project
+
+# IntelliJ project files 
+*.iml
+*.iws
+*.ipr
+.idea/
