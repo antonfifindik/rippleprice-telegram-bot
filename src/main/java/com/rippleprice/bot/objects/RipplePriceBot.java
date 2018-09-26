@@ -33,12 +33,12 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 		if (msg != null && msg.hasText()) {
 			if (msg.getText().equals("/start")) {
 				sendMsg(msg, String.format(
-						"Hello, *%s*!\n*Available commands:*\n/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands",
+						"Hello, *%s*!\n*Available commands:*\n/price - current price of a Ripple\n/markets - Markets price\nhistory - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands",
 						msg.getFrom().getFirstName()));
 				command = "/start";
 			}
 			if (msg.getText().equals("/help")) {
-				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/exmo - Exmo.com price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands");
+				sendMsg(msg, "/price - current price of a Ripple\n/markets - Markets price\n/history - Weekly history\n/top10 - Top 10 cryptocurrency market capitalizations\n/help - Available commands");
 				command = "/help";
 			}
 			if (msg.getText().equals("/price") || msg.getText().equals("/price@RipplePrice_bot")) {
@@ -137,34 +137,6 @@ public class RipplePriceBot extends TelegramLongPollingBot {
 					result.append("\n\ninformation by coinmarketcap.com");
 					sendMsg(msg, result.toString());
 					command = "/top10";
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (msg.getText().equals("/exmo") || msg.getText().equals("/exmo@RipplePrice_bot")) {
-				try {
-					doc = Jsoup.connect("https://coinmarketcap.com/exchanges/exmo/").get();
-					Element table = doc.select("table").get(0);
-					Elements rows = table.select("tr");
-					ArrayList<String[]> pairs = new ArrayList<>();
-
-					for (int i = 1; i < rows.size(); i++) {
-						Element row = rows.get(i);
-						Elements cols = row.select("td");
-						String[] data = cols.text().split(" ");
-						if (data[1].equals("Ripple") && (data[2].equals("XRP/USD") || data[2].equals("XRP/BTC"))) {
-							int resultLength = result.length();
-
-							result.append("Pair: " + data[2] + "\nPrice: *" + data[4] + "*\nVolume(24h):\n" + data[3] + "\n" + data[5]);
-							if (resultLength == 0)
-								result.append("\n———————————\n");
-							else
-								result.append("\n\ninformation by coinmarketcap.com");
-						}
-					}
-
-					sendMsg(msg, result.toString());
-					command = "/exmo";
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
